@@ -105,6 +105,7 @@ class Result:
     A_fs__db: float = 0.0
     A_a__db: float = 0.0
     theta_h1__rad: float = 0.0
+    result: str = ''
     
 #P676.h
 
@@ -133,24 +134,6 @@ class RayTraceConfig:
     temperature: Temperature
     dry_pressure: DryPressure
     wet_pressure: WetPressure
-
-class OxygenData:
-    f_0: List[float] = []  # These should be initialized with actual data
-    a_1: List[float] = []
-    a_2: List[float] = []
-    a_3: List[float] = []
-    a_4: List[float] = []
-    a_5: List[float] = []
-    a_6: List[float] = []
-
-class WaterVapourData:
-    f_0: List[float] = []  # These should be initialized with actual data
-    b_1: List[float] = []
-    b_2: List[float] = []
-    b_3: List[float] = []
-    b_4: List[float] = []
-    b_5: List[float] = []
-    b_6: List[float] = []
     
 #P835.h
 
@@ -162,16 +145,6 @@ ERROR_HEIGHT_TOO_SMALL = -1
 ERROR_HEIGHT_TOO_LARGE = -2
 
 #P528.cpp
-
-class Result:
-    def __init__(self):
-        self.A_fs__db = 0.0
-        self.A_a__db = 0.0
-        self.A__db = 0.0
-        self.d__km = 0.0
-        self.theta_h1__rad = 0.0
-        self.propagation_mode = 0
-
 
 # Constants
 PROP_MODE__NOT_SET = 0
@@ -216,15 +189,15 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
     err = ValidateInputs(d__km, h_1__meter, h_2__meter, f__mhz, T_pol, p)
 
-    print(err)
+    result.result = err
     
     if err != 'SUCCESS':
-        if err == ERROR_HEIGHT_AND_DISTANCE:
+        if err == 'ERROR_HEIGHT_AND_DISTANCE':
             result.A_fs__db = 0
             result.A_a__db = 0
             result.A__db = 0
             result.d__km = 0
-            return SUCCESS
+            return result
         else:
             return ('ERRO CODIGO:', err)
 
@@ -1188,11 +1161,11 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     # determine psi_limit, where you switch from free space to 2-ray model
     # lambda / 2 is the start of the lobe closest to d_ML
     psi_limit = FindPsiAtDeltaR(lambda__km / 2, path, terminal_1, terminal_2, terminate)
-
+    
     # "[d_y6__km] is the largest distance at which a free-space value is obtained in a two-ray model
     #   of reflection from a smooth earth with a reflection coefficient of -1" [ES-83-3, page 44]
     d_y6__km = FindDistanceAtDeltaR(lambda__km / 6, path, terminal_1, terminal_2, terminate)
-
+    
     # Determine d_0__km distance
     if terminal_1.d_r__km >= path.d_d__km or path.d_d__km >= path.d_ML__km:
         if terminal_1.d_r__km > d_y6__km or d_y6__km > path.d_ML__km:
@@ -1204,13 +1177,16 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     else:
         path.d_0__km = path.d_d__km
 
+        
     # Tune d_0__km distance
     d_temp__km = path.d_0__km
+        
+    los_result = LineOfSightParams()
+    
     while True:
         psi = FindPsiAtDistance(d_temp__km, path, terminal_1, terminal_2)
 
-        los_result = LineOfSightParams()
-        RayOptics(terminal_1, terminal_2, psi, los_result)
+        los_result = RayOptics(terminal_1, terminal_2, psi, los_result)
 
         if los_result.d__km >= path.d_0__km or (d_temp__km + 0.001) >= path.d_ML__km:
             path.d_0__km = los_result.d__km
@@ -1281,10 +1257,11 @@ def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: Li
     delta_h_a1__km = terminal_1.delta_h__km * (params.a_a__km - a_0__km) / (a_e__km - a_0__km)  # [Eqn 7-4]
     delta_h_a2__km = terminal_2.delta_h__km * (params.a_a__km - a_0__km) / (a_e__km - a_0__km)  # [Eqn 7-4]
 
+    
     H__km = [0, 0]
     H__km[0] = terminal_1.h_r__km - delta_h_a1__km    # [Eqn 7-5]
     H__km[1] = terminal_2.h_r__km - delta_h_a2__km    # [Eqn 7-5]
-
+    
     Hprime__km = [0, 0]
     for i in range(2):
         params.z__km[i] = params.a_a__km + H__km[i]                                  # [Eqn 7-6]
@@ -1301,7 +1278,11 @@ def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: Li
 
     params.d__km = max(params.a_a__km * (params.theta[0] + params.theta[1]), 0)  # [Eqn 7-11]
 
-    alpha = math.atan((Hprime__km[1] - Hprime__km[0]) / (params.D__km[0] + params.D__km[1]))  # [Eqn 7-12]
+    if (params.D__km[0] + params.D__km[1]) != 0:
+        alpha = math.atan((Hprime__km[1] - Hprime__km[0]) / (params.D__km[0] + params.D__km[1]))  # [Eqn 7-12]
+    else:
+        alpha = math.atan(math.inf)  # [Eqn 7-12]
+        
     params.r_0__km = max(delta_z, (params.D__km[0] + params.D__km[1]) / math.cos(alpha))            # [Eqn 7-13]
     params.r_12__km = (params.D__km[0] + params.D__km[1]) / math.cos(psi)                           # [Eqn 7-14]
 
@@ -1309,6 +1290,8 @@ def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: Li
 
     params.theta_h1__rad = alpha - params.theta[0]                # [Eqn 7-16]
     params.theta_h2__rad = -(alpha + params.theta[1])             # [Eqn 7-17]
+
+    return params
 
 def GetPathLoss(psi__rad: float, path: Path, f__mhz: float, psi_limit: float, 
                 A_dML__db: float, A_d_0__db: float, T_pol: int, 
@@ -1327,7 +1310,10 @@ def GetPathLoss(psi__rad: float, path: Path, f__mhz: float, psi_limit: float,
         D_v = (1.0 + term_1 + term_2)**(-0.5)         # [Eqn 8-5]
 
     # Ray-length factor, [Eqn 8-6]
-    F_r = min(params.r_0__km / params.r_12__km, 1)
+    if (params.r_12__km != 0):
+        F_r = min(params.r_0__km / params.r_12__km, 1)
+    else:
+        F_r = min(math.inf, 1)
 
     R_Tg = R_g * D_v * F_r                            # [Eqn 8-7]
 
@@ -1895,3 +1881,5 @@ def troposcatter(path, terminal_1, terminal_2, d_km, f_mhz, tropo):
         S_v__db = 10 * math.log10(temp + C_s)
 
         tropo.A_s__db = S_e__db + S_v__db + 10.0 * math.log10(kappa * tropo.theta_s ** 3 / ell__km)
+        
+        
