@@ -237,7 +237,6 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
     # Step 4. If the path is in the Line-of-Sight range, call LOS and then exit
     if path.d_ML__km - d__km > 0.001:
-                
         result.propagation_mode = PROP_MODE__LOS
         K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS)
         return result
@@ -1254,7 +1253,6 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     return K_LOS
 
 def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: LineOfSightParams) -> None:
-    
     z = (a_0__km / a_e__km) - 1       # [Eqn 7-1]
     k_a = 1 / (1 + z * math.cos(psi))      # [Eqn 7-2]
     params.a_a__km = a_0__km * k_a          # [Eqn 7-3]

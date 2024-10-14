@@ -7,13 +7,13 @@ from dataclasses import dataclass, field
 from typing import List
 
 # Constants
-PI = 3.1415926535897932384
+PI = np.pi
 a_0__km = 6371.0
 a_e__km = 9257.0
 N_s = 341
 epsilon_r = 15.0
 sigma = 0.005
-LOS_EPSILON = 0.00001
+LOS_EPSILON = 1e-5
 THIRD = 1.0 / 3.0
 
 # Consts
@@ -50,62 +50,58 @@ ERROR_HEIGHT_AND_DISTANCE = 10
 WARNING__DFRAC_TROPO_REGION = 20
 
 # Classes
-class Data:
-    P: List[float] = []  # Percentages for interpolation and data tables
-    NakagamiRiceCurves: List[List[float]] = []
-    K: List[int] = []
 
 @dataclass
 class Path:
-    d_ML__km: float = 0.0
-    d_0__km: float = 0.0
-    d_d__km: float = 0.0
+    d_ML__km: np.ndarray[float] = np.array([0.0])
+    d_0__km: np.ndarray[float] = np.array([0.0])
+    d_d__km: np.ndarray[float] = np.array([0.0])
 
 @dataclass
 class Terminal:
-    h_r__km: float = 0.0
-    h_e__km: float = 0.0
-    delta_h__km: float = 0.0
-    d_r__km: float = 0.0
-    a__km: float = 0.0
-    phi__rad: float = 0.0
-    theta__rad: float = 0.0
-    A_a__db: float = 0.0
+    h_r__km: np.ndarray[float] = np.array([0.0])
+    h_e__km: np.ndarray[float] = np.array([0.0])
+    delta_h__km: np.ndarray[float] = np.array([0.0])
+    d_r__km: np.ndarray[float] = np.array([0.0])
+    a__km: np.ndarray[float] = np.array([0.0])
+    phi__rad: np.ndarray[float] = np.array([0.0])
+    theta__rad: np.ndarray[float] = np.array([0.0])
+    A_a__db: np.ndarray[float] = np.array([0.0])
 
 @dataclass
 class LineOfSightParams:
-    z__km: List[float] = field(default_factory=lambda: [0.0, 0.0])
-    d__km: float = 0.0
-    r_0__km: float = 0.0
-    r_12__km: float = 0.0
-    D__km: List[float] = field(default_factory=lambda: [0.0, 0.0])
-    theta_h1__rad: float = 0.0
-    theta_h2__rad: float = 0.0
-    theta: List[float] = field(default_factory=lambda: [0.0, 0.0])
-    a_a__km: float = 0.0
-    delta_r__km: float = 0.0
-    A_LOS__db: float = 0.0
+    z__km: np.ndarray[float] = np.array([0.0, 0.0])
+    d__km: np.ndarray[float] = np.array([0.0])
+    r_0__km: np.ndarray[float] = np.array([0.0])
+    r_12__km: np.ndarray[float] = np.array([0.0])
+    D__km: np.ndarray[float] = np.array([0.0, 0.0])
+    theta_h1__rad: np.ndarray[float] = np.array([0.0])
+    theta_h2__rad: np.ndarray[float] = np.array([0.0])
+    theta: np.ndarray[float] = np.array([0.0, 0.0])
+    a_a__km: np.ndarray[float] = np.array([0.0])
+    delta_r__km: np.ndarray[float] = np.array([0.0])
+    A_LOS__db: np.ndarray[float] = np.array([0.0])
 
 @dataclass
 class TroposcatterParams:
-    d_s__km: float = 0.0
-    d_z__km: float = 0.0
-    h_v__km: float = 0.0
-    theta_s: float = 0.0
-    theta_A: float = 0.0
-    A_s__db: float = 0.0
-    A_s_prev__db: float = 0.0
-    M_s: float = 0.0
+    d_s__km: np.ndarray[float] = np.array([0.0])
+    d_z__km: np.ndarray[float] = np.array([0.0])
+    h_v__km: np.ndarray[float] = np.array([0.0])
+    theta_s: np.ndarray[float] = np.array([0.0])
+    theta_A: np.ndarray[float] = np.array([0.0])
+    A_s__db: np.ndarray[float] = np.array([0.0])
+    A_s_prev__db: np.ndarray[float] = np.array([0.0])
+    M_s: np.ndarray[float] = np.array([0.0])
 
 @dataclass
 class Result:
-    propagation_mode: int = 0
-    d__km: float = 0.0
-    A__db: float = 0.0
-    A_fs__db: float = 0.0
-    A_a__db: float = 0.0
-    theta_h1__rad: float = 0.0
-    result: str = ''
+    propagation_mode: np.ndarray[int] = np.array([0])
+    d__km: np.ndarray[float] = np.array([0.0])
+    A__db: np.ndarray[float] = np.array([0.0])
+    A_fs__db: np.ndarray[float] = np.array([0.0])
+    A_a__db: np.ndarray[float] = np.array([0.0])
+    theta_h1__rad: np.ndarray[float] = np.array([0.0])
+    result: np.ndarray[object] = np.array([''])
     
 #P676.h
 
@@ -113,27 +109,15 @@ from dataclasses import dataclass
 from typing import Callable, List
 
 # Constants
-PI = 3.1415926535897932384
 a_0__km = 6371.0
-
-# Define function type aliases
-Temperature = Callable[[float], float]
-DryPressure = Callable[[float], float]
-WetPressure = Callable[[float], float]
 
 @dataclass
 class SlantPathAttenuationResult:
-    A_gas__db: float = 0.0        # Median gaseous absorption, in dB
-    bending__rad: float = 0.0     # Bending angle, in rad
-    a__km: float = 0.0            # Ray length, in km
-    angle__rad: float = 0.0       # Incident angle, in rad
-    delta_L__km: float = 0.0      # Excess atmospheric path length, in km
-
-@dataclass
-class RayTraceConfig:
-    temperature: Temperature
-    dry_pressure: DryPressure
-    wet_pressure: WetPressure
+    A_gas__db: np.ndarray[float] = np.array([0.0])     # Median gaseous absorption, in dB
+    bending__rad: np.ndarray[float] = np.array([0.0])  # Bending angle, in rad
+    a__km: np.ndarray[float] = np.array([0.0])         # Ray length, in km
+    angle__rad: np.ndarray[float] = np.array([0.0])    # Incident angle, in rad
+    delta_L__km: np.ndarray[float] = np.array([0.0])   # Excess atmospheric path length, in km
     
 #P835.h
 
@@ -153,53 +137,51 @@ PROP_MODE__DIFFRACTION = 2
 PROP_MODE__SCATTERING = 3
 
 THIRD = 1.0 / 3.0
-PI = math.pi
-pi = math.pi
 SUCCESS = 0
 ERROR_HEIGHT_AND_DISTANCE = -1
 CASE_1 = 1
 CASE_2 = 2
 a_e__km = 9257.0
 
-def P528(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
-         T_pol: int, p: float) -> tuple[int, Result]:
+def P528(d__km, h_1__meter, h_2__meter, f__mhz, T_pol, p):
+
     terminal_1 = Terminal()
     terminal_2 = Terminal()
     tropo = TroposcatterParams()
     path = Path()
     los_params = LineOfSightParams()
-
     result = Result()
+    
     return_value = P528_Ex(d__km, h_1__meter, h_2__meter, f__mhz, T_pol, p, result,
                            terminal_1, terminal_2, tropo, path, los_params)
 
     return return_value
 
-def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
-            T_pol: int, p: float, result: Result, terminal_1: Terminal, terminal_2: Terminal,
-            tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams) -> int:
+def P528_Ex(d__km: np.ndarray[float], h_1__meter: np.ndarray[float], h_2__meter: np.ndarray[float], 
+            f__mhz: np.ndarray[float], T_pol: np.ndarray[int], p: np.ndarray[float], 
+            result: Result, terminal_1: Terminal, terminal_2: Terminal,
+            tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams) -> np.ndarray[int]:
     
     # reset Results struct
-    result.A_fs__db = 0
-    result.A_a__db = 0
-    result.A__db = 0
-    result.d__km = 0
-    result.theta_h1__rad = 0
-    result.propagation_mode = PROP_MODE__NOT_SET
+    result.A_fs__db = np.array([0.0])
+    result.A_a__db = np.array([0.0])
+    result.A__db = np.array([0.0])
+    result.d__km = np.array([0.0])
+    result.theta_h1__rad = np.array([0.0])
+    result.propagation_mode = np.array([PROP_MODE__NOT_SET])
 
     err = ValidateInputs(d__km, h_1__meter, h_2__meter, f__mhz, T_pol, p)
 
-    result.result = err
+    result.result = np.array([err])
     
     if err != 'SUCCESS':
         if err == 'ERROR_HEIGHT_AND_DISTANCE':
-            result.A_fs__db = 0
-            result.A_a__db = 0
-            result.A__db = 0
-            result.d__km = 0
+            result.A_fs__db = np.array([0.0])
+            result.A_a__db = np.array([0.0])
+            result.A__db = np.array([0.0])
+            result.d__km = np.array([0.0])
             return result
         else:
-            result.result = err
             return result
 
     # Compute terminal geometries
@@ -237,7 +219,6 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
     # Step 4. If the path is in the Line-of-Sight range, call LOS and then exit
     if path.d_ML__km - d__km > 0.001:
-                
         result.propagation_mode = PROP_MODE__LOS
         K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS)
         return result
@@ -317,39 +298,20 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
         return result
     
 def ValidateInputs(d_km, h_1_meter, h_2_meter, f_mhz, t_pol, p):
+    result = np.full_like(d_km, SUCCESS, dtype=int)
+
+    result[(d_km < 0) | (d_km > 1800)] = ERROR_VALIDATION__D_KM
+    result[(h_1_meter < 1.5) | (h_1_meter > 20000)] = ERROR_VALIDATION__H_1
+    result[(h_2_meter < 1.5) | (h_2_meter > 20000)] = ERROR_VALIDATION__H_2
+    result[h_1_meter > h_2_meter] = ERROR_VALIDATION__TERM_GEO
+    result[f_mhz < 100] = ERROR_VALIDATION__F_MHZ_LOW
+    result[f_mhz > 30000] = ERROR_VALIDATION__F_MHZ_HIGH
+    result[(t_pol != POLARIZATION__HORIZONTAL) & (t_pol != POLARIZATION__VERTICAL)] = ERROR_VALIDATION__POLARIZATION
+    result[p < 1] = ERROR_VALIDATION__PERCENT_LOW
+    result[p > 99] = ERROR_VALIDATION__PERCENT_HIGH
+    result[(h_1_meter == h_2_meter) & (d_km == 0)] = ERROR_HEIGHT_AND_DISTANCE
     
-    #np where d_km[i]<0: Raise ValueError i
-    if d_km < 0:
-        return "ERROR_VALIDATION__D_KM"
-
-    if h_1_meter < 1.5 or h_1_meter > 20000:
-        return "ERROR_VALIDATION__H_1"
-
-    if h_2_meter < 1.5 or h_2_meter > 20000:
-        return "ERROR_VALIDATION__H_2"
-
-    if h_1_meter > h_2_meter:
-        return "ERROR_VALIDATION__TERM_GEO"
-
-    if f_mhz < 100:
-        return "ERROR_VALIDATION__F_MHZ_LOW"
-
-    if f_mhz > 30000:
-        return "ERROR_VALIDATION__F_MHZ_HIGH"
-
-    if t_pol != POLARIZATION__HORIZONTAL and t_pol != POLARIZATION__VERTICAL:
-        return "ERROR_VALIDATION__POLARIZATION"
-
-    if p < 1:
-        return "ERROR_VALIDATION__PERCENT_LOW"
-
-    if p > 99:
-        return "ERROR_VALIDATION__PERCENT_HIGH"
-
-    if h_1_meter == h_2_meter and d_km == 0:
-        return "ERROR_HEIGHT_AND_DISTANCE"
-
-    return "SUCCESS"
+    return result
 
 def TerminalGeometry(f__mhz: float, terminal: Terminal) -> None:
     theta_tx__rad = 0
@@ -1254,7 +1216,6 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     return K_LOS
 
 def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: LineOfSightParams) -> None:
-    
     z = (a_0__km / a_e__km) - 1       # [Eqn 7-1]
     k_a = 1 / (1 + z * math.cos(psi))      # [Eqn 7-2]
     params.a_a__km = a_0__km * k_a          # [Eqn 7-3]
