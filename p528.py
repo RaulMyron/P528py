@@ -235,13 +235,18 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
     K_LOS = 0
 
+    #print(path.d_ML__km - d__km)
     # Step 4. If the path is in the Line-of-Sight range, call LOS and then exit
     if path.d_ML__km - d__km > 0.001:
-                
+        
         result.propagation_mode = PROP_MODE__LOS
         K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS)
+        print('los, result', K_LOS)
+        
+        
         return result
     else:
+        print('case 2')
         K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, result, K_LOS)
 
         # Step 6. Search past horizon to find crossover point between Diffraction and Troposcatter models
@@ -1123,6 +1128,7 @@ def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, termin
         psi += delta_psi
 
         params_temp = LineOfSightParams()
+        
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
         if params_temp.delta_r__km > delta_r__km:
@@ -1132,6 +1138,7 @@ def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, termin
 
         if abs(params_temp.delta_r__km - delta_r__km) <= terminate:
             break
+
 
     return psi
 
@@ -1190,6 +1197,7 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     while True:
         psi = FindPsiAtDistance(d_temp__km, path, terminal_1, terminal_2)
 
+
         los_result = RayOptics(terminal_1, terminal_2, psi, los_result)
 
         if los_result.d__km >= path.d_0__km or (d_temp__km + 0.001) >= path.d_ML__km:
@@ -1208,13 +1216,16 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     RayOptics(terminal_1, terminal_2, psi, los_params)
     R_Tg = GetPathLoss(psi, path, f__mhz, psi_limit, A_dML__db, los_params.A_LOS__db, T_pol, los_params)
 
+    print('PSI', psi, path, f__mhz, psi_limit, A_dML__db, los_params.A_LOS__db, T_pol, los_params)
+    print('R_Tg', R_Tg)
+
     # Compute atmospheric absorption
     result_slant = SlantPathAttenuation(f__mhz / 1000, terminal_1.h_r__km, terminal_2.h_r__km, math.pi / 2 - los_params.theta_h1__rad)
     result.A_a__db = result_slant.A_gas__db
 
     # Compute free-space loss
     result.A_fs__db = 20.0 * math.log10(los_params.r_0__km) + 20.0 * math.log10(f__mhz) + 32.45  # [Eqn 6-4]
-
+    
     # Compute variability
     f_theta_h = 1.0 if los_params.theta_h1__rad <= 0.0 else (
         0.0 if los_params.theta_h1__rad >= 1.0 else
@@ -1259,10 +1270,15 @@ def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: Li
     k_a = 1 / (1 + z * math.cos(psi))      # [Eqn 7-2]
     params.a_a__km = a_0__km * k_a          # [Eqn 7-3]
 
+    #print(terminal_1.delta_h__km, params.a_a__km, a_0__km, a_e__km, a_0__km)
+    #exit()
+
     delta_h_a1__km = terminal_1.delta_h__km * (params.a_a__km - a_0__km) / (a_e__km - a_0__km)  # [Eqn 7-4]
     delta_h_a2__km = terminal_2.delta_h__km * (params.a_a__km - a_0__km) / (a_e__km - a_0__km)  # [Eqn 7-4]
 
-    
+    #print('delta_h_a1__km, delta_h_a2__km', delta_h_a1__km, delta_h_a2__km)
+    #exit()
+        
     H__km = [0, 0]
     H__km[0] = terminal_1.h_r__km - delta_h_a1__km    # [Eqn 7-5]
     H__km[1] = terminal_2.h_r__km - delta_h_a2__km    # [Eqn 7-5]
