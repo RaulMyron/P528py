@@ -162,7 +162,7 @@ CASE_2 = 2
 a_e__km = 9257.0
 
 def P528(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
-         T_pol: int, p: float) -> tuple[int, Result]:
+         T_pol: int, p: float):
     terminal_1 = Terminal()
     terminal_2 = Terminal()
     tropo = TroposcatterParams()
@@ -939,7 +939,7 @@ def WaterVapourSpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: floa
 
     return gamma_w
 
-def GetLayerProperties(f__ghz: float, h_i__km: float) -> tuple[float, float]:
+def GetLayerProperties(f__ghz: float, h_i__km: float):
     # use function pointers to get atmospheric parameters
     
     #T__kelvin = config.temperature(h_i__km)
@@ -1367,7 +1367,7 @@ def GetPathLoss(psi__rad: float, path: Path, f__mhz: float, psi_limit: float,
 
     return R_Tg
 
-def ReflectionCoefficients(psi__rad: float, f__mhz: float, T_pol: int) -> tuple[float, float]:
+def ReflectionCoefficients(psi__rad: float, f__mhz: float, T_pol: int):
     if psi__rad <= 0.0:
         psi__rad = 0.0
         sin_psi = 0.0
@@ -1422,7 +1422,7 @@ def linear_interpolation(x, x1, y1, x2, y2):
     return y1 + (x - x1) * (y2 - y1) / (x2 - x1)
 
 def LongTermVariability(d_r1__km: float, d_r2__km: float, d__km: float, f__mhz: float,
-                        p: float, f_theta_h: float, A_T: float) -> tuple[float, float]:
+                        p: float, f_theta_h: float, A_T: float):
     """
     Compute the long term variability as described in Annex 2, Section 14 of
     Recommendation ITU-R P.528-5, "Propagation curves for aeronautical mobile
