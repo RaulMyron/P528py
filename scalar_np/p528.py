@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 #P258.h
@@ -559,9 +560,6 @@ def RayTrace(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float) 
     # Equations 16(a)-(c)
     i_lower = int(np.floor(100 * np.log(1e4 * h_1__km * (np.exp(1. / 100.) - 1) + 1) + 1))
     i_upper = int(np.ceil(100 * np.log(1e4 * h_2__km * (np.exp(1. / 100.) - 1) + 1) + 1))
-    
-    #print()
-    
     m = ((np.exp(2. / 100.) - np.exp(1. / 100.)) / (np.exp(i_upper / 100.) - np.exp(i_lower / 100.))) * (h_2__km - h_1__km)
 
     result = SlantPathAttenuationResult()
@@ -1090,11 +1088,11 @@ def SmoothEarthDiffraction(d_1__km: float, d_2__km: float, f__mhz: float, d_0__k
 
 def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal) -> float:
     if d__km == 0:
-        return pi / 2
+        return np.pi / 2
 
     # initialize to start at mid-point
-    psi = pi / 2
-    delta_psi = -pi / 4
+    psi = np.pi / 2
+    delta_psi = -np.pi / 4
 
     while True:
         psi += delta_psi  # new psi
@@ -1116,8 +1114,8 @@ def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2
     return psi
 
 def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal, terminate: float) -> float:
-    psi = pi / 2
-    delta_psi = -pi / 4
+    psi = np.pi / 2
+    delta_psi = -np.pi / 4
 
     while True:
         psi += delta_psi
@@ -1138,8 +1136,8 @@ def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, termin
     return psi
 
 def FindDistanceAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal, terminate: float) -> float:
-    psi = pi / 2
-    delta_psi = -pi / 4
+    psi = np.pi / 2
+    delta_psi = -np.pi / 4
 
     while True:
         psi += delta_psi
@@ -1212,7 +1210,7 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     R_Tg = GetPathLoss(psi, path, f__mhz, psi_limit, A_dML__db, los_params.A_LOS__db, T_pol, los_params)
     
     # Compute atmospheric absorption
-    result_slant = SlantPathAttenuation(f__mhz / 1000, terminal_1.h_r__km, terminal_2.h_r__km, pi / 2 - los_params.theta_h1__rad)
+    result_slant = SlantPathAttenuation(f__mhz / 1000, terminal_1.h_r__km, terminal_2.h_r__km, np.pi / 2 - los_params.theta_h1__rad)
     result.A_a__db = result_slant.A_gas__db
 
     # Compute free-space loss
@@ -1221,17 +1219,17 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     # Compute variability
     f_theta_h = 1.0 if los_params.theta_h1__rad <= 0.0 else (
         0.0 if los_params.theta_h1__rad >= 1.0 else
-        max(0.5 - (1 / pi) * (np.arctan(20.0 * np.log10(32.0 * los_params.theta_h1__rad))), 0)
+        max(0.5 - (1 / np.pi) * (np.arctan(20.0 * np.log10(32.0 * los_params.theta_h1__rad))), 0)
     )
 
     Y_e__db, A_Y = LongTermVariability(terminal_1.d_r__km, terminal_2.d_r__km, d__km, f__mhz, p, f_theta_h, los_params.A_LOS__db)
     Y_e_50__db, _ = LongTermVariability(terminal_1.d_r__km, terminal_2.d_r__km, d__km, f__mhz, 50, f_theta_h, los_params.A_LOS__db)
 
-    F_AY = 1.0 if A_Y <= 0.0 else (0.1 if A_Y >= 9.0 else (1.1 + (0.9 * np.cos((A_Y / 9.0) * pi))) / 2.0)
+    F_AY = 1.0 if A_Y <= 0.0 else (0.1 if A_Y >= 9.0 else (1.1 + (0.9 * np.cos((A_Y / 9.0) * np.pi))) / 2.0)
 
     F_delta_r = 1.0 if los_params.delta_r__km >= (lambda__km / 2.0) else (
         0.1 if los_params.delta_r__km <= lambda__km / 6.0 else
-        0.5 * (1.1 - (0.9 * np.cos(((3.0 * pi) / lambda__km) * (los_params.delta_r__km - (lambda__km / 6.0)))))
+        0.5 * (1.1 - (0.9 * np.cos(((3.0 * np.pi) / lambda__km) * (los_params.delta_r__km - (lambda__km / 6.0)))))
     )
 
     R_s = R_Tg * F_delta_r * F_AY  # [Eqn 13-4]
@@ -1288,7 +1286,7 @@ def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: Li
     if (params.D__km[0] + params.D__km[1]) != 0:
         alpha = np.arctan((Hprime__km[1] - Hprime__km[0]) / (params.D__km[0] + params.D__km[1]))  # [Eqn 7-12]
     else:
-        alpha = np.pi  # [Eqn 7-12]
+        alpha = np.arctan(np.inf)  # [Eqn 7-12]
         
     params.r_0__km = max(delta_z, (params.D__km[0] + params.D__km[1]) / np.cos(alpha))            # [Eqn 7-13]
     params.r_12__km = (params.D__km[0] + params.D__km[1]) / np.cos(psi)                           # [Eqn 7-14]
@@ -1320,8 +1318,7 @@ def GetPathLoss(psi__rad: float, path: Path, f__mhz: float, psi_limit: float,
     if (params.r_12__km != 0):
         F_r = min(params.r_0__km / params.r_12__km, 1)
     else:
-        #F_r = min(np.inf, 1)
-        F_r = 1
+        F_r = min(np.inf, 1)
 
     R_Tg = R_g * D_v * F_r                            # [Eqn 8-7]
 
@@ -1338,7 +1335,7 @@ def GetPathLoss(psi__rad: float, path: Path, f__mhz: float, psi_limit: float,
             # Total phase lag of the ground reflected ray relative to the direct ray
 
             # [Eqn 8-8]
-            phi_Tg = (2 * pi * params.delta_r__km / lambda__km) + phi_g
+            phi_Tg = (2 * np.pi * params.delta_r__km / lambda__km) + phi_g
 
             # [Eqn 8-9]
             cplx = complex(R_Tg * np.cos(phi_Tg), -R_Tg * np.sin(phi_Tg))
@@ -1359,8 +1356,8 @@ def ReflectionCoefficients(psi__rad: float, f__mhz: float, T_pol: int):
         psi__rad = 0.0
         sin_psi = 0.0
         cos_psi = 1.0
-    elif psi__rad >= pi / 2:
-        psi__rad = pi / 2
+    elif psi__rad >= np.pi / 2:
+        psi__rad = np.pi / 2
         sin_psi = 1.0
         cos_psi = 0.0
     else:
@@ -1889,5 +1886,3 @@ def troposcatter(path, terminal_1, terminal_2, d_km, f_mhz, tropo):
         S_v__db = 10 * np.log10(temp + C_s)
 
         tropo.A_s__db = S_e__db + S_v__db + 10.0 * np.log10(kappa * tropo.theta_s ** 3 / ell__km)
-        
-        

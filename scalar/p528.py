@@ -299,7 +299,7 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
         
         # Atmospheric absorption for transhorizon path
 
-        result_v = SlantPathAttenuation(f__mhz / 1000, 0, tropo.h_v__km, PI / 2)
+        result_v = SlantPathAttenuation(f__mhz / 1000, 0, tropo.h_v__km, pi / 2)
 
         result.A_a__db = terminal_1.A_a__db + terminal_2.A_a__db + 2 * result_v.A_gas__db  # [Eqn 3-17]
 
