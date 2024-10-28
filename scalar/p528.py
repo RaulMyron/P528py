@@ -56,9 +56,20 @@ class Data:
 
 @dataclass
 class Path:
+    
     d_ML__km: float = 0.0
     d_0__km: float = 0.0
     d_d__km: float = 0.0
+    
+    def __init__(self):
+        print('Creating Path')
+        self.clear()
+    
+    def clear(self):
+        self.d_ML__km: float = 0.0
+        self.d_0__km: float = 0.0
+        self.d_d__km: float = 0.0
+
 
 @dataclass
 class Terminal:
@@ -70,6 +81,20 @@ class Terminal:
     phi__rad: float = 0.0
     theta__rad: float = 0.0
     A_a__db: float = 0.0
+    
+    def __init__(self):
+        self.clear()
+        print('Creating Terminal')
+    
+    def clear(self):
+        self.h_r__km: float = 0.0
+        self.h_e__km: float = 0.0
+        self.delta_h__km: float = 0.0
+        self.d_r__km: float = 0.0
+        self.a__km: float = 0.0
+        self.phi__rad: float = 0.0
+        self.theta__rad: float = 0.0
+        self.A_a__db: float = 0.0
 
 @dataclass
 class LineOfSightParams:
@@ -84,7 +109,24 @@ class LineOfSightParams:
     a_a__km: float = 0.0
     delta_r__km: float = 0.0
     A_LOS__db: float = 0.0
-
+    
+    def __init__(self):
+        self.clear()
+        print('Creating LineOfSightParams')
+    
+    def clear(self):
+        self.z__km: List[float] = [0.0, 0.0]
+        self.d__km: float = 0.0
+        self.r_0__km: float = 0.0
+        self.r_12__km: float = 0.0
+        self.D__km: List[float] = [0.0, 0.0]
+        self.theta_h1__rad: float = 0.0
+        self.theta_h2__rad: float = 0.0
+        self.theta: List[float] = [0.0, 0.0]
+        self.a_a__km: float = 0.0
+        self.delta_r__km: float = 0.0
+        self.A_LOS__db: float = 0.0
+    
 @dataclass
 class TroposcatterParams:
     d_s__km: float = 0.0
@@ -96,6 +138,21 @@ class TroposcatterParams:
     A_s_prev__db: float = 0.0
     M_s: float = 0.0
 
+    def __init__(self):
+        self.clear()
+        print('Creating TroposcatterParams')
+    
+    def clear(self):
+        self.d_s__km: float = 0.0
+        self.d_z__km: float = 0.0
+        self.h_v__km: float = 0.0
+        self.theta_s: float = 0.0
+        self.theta_A: float = 0.0
+        self.A_s__db: float = 0.0
+        self.A_s_prev__db: float = 0.0
+        self.M_s: float = 0.0
+    
+
 @dataclass
 class Result:
     propagation_mode: int = 0
@@ -106,6 +163,19 @@ class Result:
     theta_h1__rad: float = 0.0
     result: str = ''
     
+    def __init__(self):
+        print('Creating Result')
+        self.clear()
+    
+    def clear(self):
+        self.propagation_mode: int = 0
+        self.d__km: float = 0.0
+        self.A__db: float = 0.0
+        self.A_fs__db: float = 0.0
+        self.A_a__db: float = 0.0
+        self.theta_h1__rad: float = 0.0
+        self.result: str = ''  
+
 #P676.h
 
 from dataclasses import dataclass
@@ -159,13 +229,14 @@ a_e__km = 9257.0
 
 def P528(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
          T_pol: int, p: float):
+
     terminal_1 = Terminal()
     terminal_2 = Terminal()
     tropo = TroposcatterParams()
     path = Path()
     los_params = LineOfSightParams()
-
     result = Result()
+        
     return_value = P528_Ex(d__km, h_1__meter, h_2__meter, f__mhz, T_pol, p, result,
                            terminal_1, terminal_2, tropo, path, los_params)
 
@@ -173,7 +244,7 @@ def P528(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
 def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
             T_pol: int, p: float, result: Result, terminal_1: Terminal, terminal_2: Terminal,
-            tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams) -> int:
+            tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams, los_result: LineOfSightParams):
     
     # reset Results struct
     result.A_fs__db = 0
@@ -209,6 +280,7 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
     TerminalGeometry(f__mhz, terminal_2)
 
     # Step 2
+        
     path.d_ML__km = terminal_1.d_r__km + terminal_2.d_r__km  # [Eqn 3-1]
 
     # Smooth earth diffraction line calculations
@@ -233,14 +305,14 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
     # Step 4. If the path is in the Line-of-Sight range, call LOS and then exit
     if path.d_ML__km - d__km > 0.001:
-        
+
         result.propagation_mode = PROP_MODE__LOS
-        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS)        
+        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS, los_result)        
         return result
     
     else:
         
-        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, result, K_LOS)
+        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, result, K_LOS, los_result)
 
         # Step 6. Search past horizon to find crossover point between Diffraction and Troposcatter models
                                         #TranshorizonSearch(path, terminal_1, terminal_2, f__mhz, A_dML__db, M_d, A_d0,Const)
@@ -349,7 +421,7 @@ def ValidateInputs(d_km, h_1_meter, h_2_meter, f_mhz, t_pol, p):
 
     return "SUCCESS"
 
-def TerminalGeometry(f__mhz: float, terminal: Terminal) -> None:
+def TerminalGeometry(f__mhz: float, terminal: Terminal):
     theta_tx__rad = 0
     result = SlantPathAttenuation(f__mhz / 1000, 0, terminal.h_r__km, pi / 2 - theta_tx__rad)
     
@@ -366,7 +438,7 @@ def TerminalGeometry(f__mhz: float, terminal: Terminal) -> None:
     
 #p835 MeanAnnualGlobalReferenceAtmosphere
 
-def GlobalTemperature(h__km: float) -> float:
+def GlobalTemperature(h__km: float):
     if h__km < 0:
         raise ValueError(ERROR_HEIGHT_TOO_SMALL)
     if h__km > 100:
@@ -377,7 +449,7 @@ def GlobalTemperature(h__km: float) -> float:
     else:
         return GlobalTemperature_Regime2(h__km)
 
-def GlobalTemperature_Regime1(h_prime__km: float) -> float:
+def GlobalTemperature_Regime1(h_prime__km: float):
     if h_prime__km < 0:
         raise ValueError(ERROR_HEIGHT_TOO_SMALL)
     elif h_prime__km <= 11:
@@ -397,7 +469,7 @@ def GlobalTemperature_Regime1(h_prime__km: float) -> float:
     else:
         raise ValueError(ERROR_HEIGHT_TOO_LARGE)
         
-def GlobalTemperature_Regime2(h__km: float) -> float:
+def GlobalTemperature_Regime2(h__km: float):
     if h__km < 86:
         return ERROR_HEIGHT_TOO_SMALL
     elif h__km <= 91:
@@ -407,7 +479,7 @@ def GlobalTemperature_Regime2(h__km: float) -> float:
     else:
         return ERROR_HEIGHT_TOO_LARGE
 
-def GlobalPressure(h__km: float) -> float:
+def GlobalPressure(h__km: float):
     if h__km < 0:
         return ERROR_HEIGHT_TOO_SMALL
     if h__km > 100:
@@ -419,7 +491,7 @@ def GlobalPressure(h__km: float) -> float:
     else:
         return GlobalPressure_Regime2(h__km)
 
-def GlobalPressure_Regime1(h_prime__km: float) -> float:
+def GlobalPressure_Regime1(h_prime__km: float):
     if h_prime__km < 0:
         return ERROR_HEIGHT_TOO_SMALL
     elif h_prime__km <= 11:
@@ -439,7 +511,7 @@ def GlobalPressure_Regime1(h_prime__km: float) -> float:
     else:
         return ERROR_HEIGHT_TOO_LARGE
 
-def GlobalPressure_Regime2(h__km: float) -> float:
+def GlobalPressure_Regime2(h__km: float):
     if h__km < 86:
         return ERROR_HEIGHT_TOO_SMALL
     if h__km > 100:
@@ -453,7 +525,7 @@ def GlobalPressure_Regime2(h__km: float) -> float:
 
     return math.exp(a_0 + a_1 * h__km + a_2 * pow(h__km, 2) + a_3 * pow(h__km, 3) + a_4 * pow(h__km, 4))
 
-def GlobalWaterVapourDensity(h__km: float, rho_0: float) -> float:
+def GlobalWaterVapourDensity(h__km: float, rho_0: float):
     if h__km < 0:
         return ERROR_HEIGHT_TOO_SMALL
     if h__km > 100:
@@ -463,7 +535,7 @@ def GlobalWaterVapourDensity(h__km: float, rho_0: float) -> float:
 
     return rho_0 * math.exp(-h__km / h_0__km)
 
-def GlobalWaterVapourPressure(h__km: float, rho_0: float) -> float:
+def GlobalWaterVapourPressure(h__km: float, rho_0: float):
     if h__km < 0:
         return ERROR_HEIGHT_TOO_SMALL
     if h__km > 100:
@@ -480,7 +552,7 @@ def GlobalWaterVapourPressure(h__km: float, rho_0: float) -> float:
     
     return WaterVapourDensityToPressure(rho, T__kelvin)
 
-def SlantPathAttenuation(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float) -> SlantPathAttenuationResult:
+def SlantPathAttenuation(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float):
     
     #config = RayTraceConfig(
     #    temperature=GlobalTemperature,
@@ -551,12 +623,12 @@ def SlantPathAttenuation(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__
 
     return result
 
-def LayerThickness(m: float, i: int) -> float:
+def LayerThickness(m: float, i: int):
     # Equation 14
     delta_i__km = m * math.exp((i - 1) / 100.)
     return delta_i__km
 
-def RayTrace(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float) -> SlantPathAttenuationResult:
+def RayTrace(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float):
     # Equations 16(a)-(c)
     i_lower = math.floor(100 * math.log(1e4 * h_1__km * (math.exp(1. / 100.) - 1) + 1) + 1)
     i_upper = math.ceil(100 * math.log(1e4 * h_2__km * (math.exp(1. / 100.) - 1) + 1) + 1)
@@ -618,7 +690,7 @@ def RayTrace(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float) 
     result.angle__rad = alpha_i__rad
     return result
 
-def GlobalWetPressure(h__km: float) -> float:
+def GlobalWetPressure(h__km: float):
     """
     Calculate the global wet pressure at a given height.
 
@@ -635,7 +707,7 @@ def GlobalWetPressure(h__km: float) -> float:
 
     return e__hPa
 
-def RefractiveIndex(p__hPa: float, T__kelvin: float, e__hPa: float) -> float:
+def RefractiveIndex(p__hPa: float, T__kelvin: float, e__hPa: float):
     """
     Calculate the refractive index based on pressure, temperature, and water vapor pressure.
 
@@ -659,7 +731,7 @@ def RefractiveIndex(p__hPa: float, T__kelvin: float, e__hPa: float) -> float:
 
     return n
 
-def SpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float) -> float:
+def SpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float):
     """
     Calculate the specific attenuation due to atmospheric gases.
 
@@ -733,7 +805,7 @@ OxygenData = {
     ]
 }
 
-def OxygenRefractivity(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float) -> float:
+def OxygenRefractivity(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float):
     """
     Calculate the imaginary part of the frequency-dependent complex refractivity due to oxygen.
 
@@ -776,7 +848,7 @@ def OxygenRefractivity(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: f
 
     return N_o
 
-def NonresonantDebyeAttenuation(f__ghz: float, e__hPa: float, p__hPa: float, theta: float) -> float:
+def NonresonantDebyeAttenuation(f__ghz: float, e__hPa: float, p__hPa: float, theta: float):
     """
     Calculate the Non-resonant Debye component of frequency-dependent complex refractivity.
 
@@ -853,7 +925,7 @@ def LineShapeFactor(f__ghz, f_i__ghz, delta_f__ghz, delta):
 
     return F_i
 
-def WaterVapourRefractivity(f__ghz: float, T__kelvin: float, e__hPa: float, P__hPa: float) -> float:
+def WaterVapourRefractivity(f__ghz: float, T__kelvin: float, e__hPa: float, P__hPa: float):
     """
     Calculate the imaginary part of the frequency-dependent complex refractivity due to water vapour.
 
@@ -893,7 +965,7 @@ def WaterVapourRefractivity(f__ghz: float, T__kelvin: float, e__hPa: float, P__h
     return N_w
 
 
-def OxygenSpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float) -> float:
+def OxygenSpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float):
     """
     Calculate the specific attenuation due to oxygen.
 
@@ -913,7 +985,7 @@ def OxygenSpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p_
 
     return gamma_o
 
-def WaterVapourSpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float) -> float:
+def WaterVapourSpecificAttenuation(f__ghz: float, T__kelvin: float, e__hPa: float, p__hPa: float):
     """
     Calculate the specific attenuation due to water vapour.
 
@@ -953,7 +1025,7 @@ def GetLayerProperties(f__ghz: float, h_i__km: float):
 
 #Conversion
 
-def ConvertToGeopotentialHeight(h__km: float) -> float:
+def ConvertToGeopotentialHeight(h__km: float):
     """
     Converts from geometric height, in km, to geopotential height, in km'.
     See Equation (1a).
@@ -966,7 +1038,7 @@ def ConvertToGeopotentialHeight(h__km: float) -> float:
     """
     return (6356.766 * h__km) / (6356.766 + h__km)
 
-def ConvertToGeometricHeight(h_prime__km: float) -> float:
+def ConvertToGeometricHeight(h_prime__km: float):
     """
     Converts from geopotential height, in km', to geometric height, in km.
     See Equation (1b).
@@ -979,7 +1051,7 @@ def ConvertToGeometricHeight(h_prime__km: float) -> float:
     """
     return (6356.766 * h_prime__km) / (6356.766 - h_prime__km)
 
-def WaterVapourDensityToPressure(rho: float, T__kelvin: float) -> float:
+def WaterVapourDensityToPressure(rho: float, T__kelvin: float):
     """
     Converts water vapour density, in g/m^3, to water vapour pressure, in hPa.
     See Equation (8).
@@ -993,7 +1065,7 @@ def WaterVapourDensityToPressure(rho: float, T__kelvin: float) -> float:
     """
     return (rho * T__kelvin) / 216.7
 
-def DistanceFunction(x__km: float) -> float:
+def DistanceFunction(x__km: float):
     """
     Calculate the distance function G(x).
 
@@ -1007,7 +1079,7 @@ def DistanceFunction(x__km: float) -> float:
     G_x__db = 0.05751 * x__km - 10.0 * math.log10(x__km)
     return G_x__db
 
-def HeightFunction(x__km: float, K: float) -> float:
+def HeightFunction(x__km: float, K: float):
     """
     Calculate the height function F(x).
 
@@ -1047,7 +1119,7 @@ def HeightFunction(x__km: float, K: float) -> float:
 
     return F_x__db
 
-def SmoothEarthDiffraction(d_1__km: float, d_2__km: float, f__mhz: float, d_0__km: float, T_pol: int) -> float:
+def SmoothEarthDiffraction(d_1__km: float, d_2__km: float, f__mhz: float, d_0__km: float, T_pol: int):
     """
     Calculate the smooth earth diffraction loss.
 
@@ -1086,7 +1158,7 @@ def SmoothEarthDiffraction(d_1__km: float, d_2__km: float, f__mhz: float, d_0__k
     # [Vogler 1964, Equ 1] with C_1(K, b^0) = 20, which is the approximate value for all K (see Figure 5)
     return G_x__db - F_x1__db - F_x2__db - 20.0
 
-def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal) -> float:
+def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal):
     if d__km == 0:
         return math.pi / 2
 
@@ -1094,10 +1166,13 @@ def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2
     psi = math.pi / 2
     delta_psi = -math.pi / 4
 
+   
+    params_temp = LineOfSightParams()
+    
     while True:
         psi += delta_psi  # new psi
 
-        params_temp = LineOfSightParams()
+        params_temp.clear()
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
         d_psi__km = params_temp.d__km
@@ -1110,18 +1185,18 @@ def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2
 
         if abs(d__km - d_psi__km) <= 1e-3 or abs(delta_psi) <= 1e-12:
             break
-
+        
     return psi
 
-def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal, terminate: float) -> float:
+def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal, terminate: float):
     psi = math.pi / 2
     delta_psi = -math.pi / 4
 
+    params_temp = LineOfSightParams()
     while True:
         psi += delta_psi
 
-        params_temp = LineOfSightParams()
-        
+        params_temp.clear()
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
         if params_temp.delta_r__km > delta_r__km:
@@ -1135,14 +1210,17 @@ def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, termin
 
     return psi
 
-def FindDistanceAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal, terminate: float) -> float:
+def FindDistanceAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, terminal_2: Terminal, terminate: float):
     psi = math.pi / 2
     delta_psi = -math.pi / 4
 
+    params_temp = LineOfSightParams()
+    
     while True:
         psi += delta_psi
 
-        params_temp = LineOfSightParams()
+        params_temp.clear()
+
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
         if params_temp.delta_r__km > delta_r__km:
@@ -1156,7 +1234,7 @@ def FindDistanceAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, t
     return params_temp.d__km
 
 def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_params: LineOfSightParams,
-                f__mhz: float, A_dML__db: float, p: float, d__km: float, T_pol: int, result: Result, K_LOS: float) -> float:
+                f__mhz: float, A_dML__db: float, p: float, d__km: float, T_pol: int, result: Result, K_LOS: float, los_result: LineOfSightParams):
 
     # 0.2997925 = speed of light, gigameters per sec
     lambda__km = 0.2997925 / f__mhz  # [Eqn 6-1]
@@ -1185,11 +1263,12 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     # Tune d_0__km distance
     d_temp__km = path.d_0__km
         
-    los_result = LineOfSightParams()
+    #los_result = LineOfSightParams()
+    
+    los_result.clear()
     
     while True:
         psi = FindPsiAtDistance(d_temp__km, path, terminal_1, terminal_2)
-
 
         los_result = RayOptics(terminal_1, terminal_2, psi, los_result)
 
@@ -1254,7 +1333,7 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
 
     return K_LOS
 
-def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: LineOfSightParams) -> None:
+def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: LineOfSightParams):
     
     z = (a_0__km / a_e__km) - 1       # [Eqn 7-1]
     k_a = 1 / (1 + z * math.cos(psi))      # [Eqn 7-2]
@@ -1300,7 +1379,7 @@ def RayOptics(terminal_1: Terminal, terminal_2: Terminal, psi: float, params: Li
 
 def GetPathLoss(psi__rad: float, path: Path, f__mhz: float, psi_limit: float, 
                 A_dML__db: float, A_d_0__db: float, T_pol: int, 
-                params: LineOfSightParams) -> float:
+                params: LineOfSightParams):
     R_g, phi_g = ReflectionCoefficients(psi__rad, f__mhz, T_pol)
 
     if math.tan(psi__rad) >= 0.1:
@@ -1530,7 +1609,7 @@ def LongTermVariability(d_r1__km: float, d_r2__km: float, d__km: float, f__mhz: 
 
     return Y_e__db, A_Y
 
-def FindKForYpiAt99Percent(Y_pi_99__db: float) -> float:
+def FindKForYpiAt99Percent(Y_pi_99__db: float):
     """
     Find K value for Y_pi at 99 percent.
 

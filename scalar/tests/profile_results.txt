@@ -1,0 +1,80 @@
+
+Top 30 functions by cumulative time:
+         717594 function calls in 0.207 seconds
+
+   Ordered by: cumulative time
+   List reduced from 66 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.207    0.207 /home/raulm/anatel/P528py/scalar/tests/profile_tests.py:8(run_tests)
+        1    0.000    0.000    0.207    0.207 /home/raulm/anatel/P528py/scalar/p528.py:160(P528)
+        1    0.000    0.000    0.207    0.207 /home/raulm/anatel/P528py/scalar/p528.py:174(P528_Ex)
+        3    0.000    0.000    0.206    0.069 /home/raulm/anatel/P528py/scalar/p528.py:483(SlantPathAttenuation)
+        3    0.006    0.002    0.206    0.069 /home/raulm/anatel/P528py/scalar/p528.py:559(RayTrace)
+     1526    0.002    0.000    0.197    0.000 /home/raulm/anatel/P528py/scalar/p528.py:935(GetLayerProperties)
+     1526    0.001    0.000    0.186    0.000 /home/raulm/anatel/P528py/scalar/p528.py:662(SpecificAttenuation)
+        2    0.000    0.000    0.127    0.064 /home/raulm/anatel/P528py/scalar/p528.py:352(TerminalGeometry)
+     1526    0.000    0.000    0.119    0.000 /home/raulm/anatel/P528py/scalar/p528.py:896(OxygenSpecificAttenuation)
+     1526    0.070    0.000    0.118    0.000 /home/raulm/anatel/P528py/scalar/p528.py:736(OxygenRefractivity)
+        1    0.000    0.000    0.080    0.080 /home/raulm/anatel/P528py/scalar/p528.py:1158(LineOfSight)
+     1526    0.000    0.000    0.067    0.000 /home/raulm/anatel/P528py/scalar/p528.py:916(WaterVapourSpecificAttenuation)
+     1526    0.044    0.000    0.066    0.000 /home/raulm/anatel/P528py/scalar/p528.py:856(WaterVapourRefractivity)
+   120554    0.037    0.000    0.037    0.000 /home/raulm/anatel/P528py/scalar/p528.py:847(LineShapeFactor)
+   276226    0.019    0.000    0.019    0.000 {built-in method math.pow}
+   129979    0.007    0.000    0.007    0.000 {built-in method math.exp}
+   122086    0.007    0.000    0.007    0.000 {built-in method math.sqrt}
+     1526    0.002    0.000    0.005    0.000 /home/raulm/anatel/P528py/scalar/p528.py:621(GlobalWetPressure)
+     3052    0.001    0.000    0.002    0.000 /home/raulm/anatel/P528py/scalar/p528.py:410(GlobalPressure)
+     3052    0.001    0.000    0.002    0.000 /home/raulm/anatel/P528py/scalar/p528.py:369(GlobalTemperature)
+     1526    0.001    0.000    0.002    0.000 /home/raulm/anatel/P528py/scalar/p528.py:779(NonresonantDebyeAttenuation)
+     1526    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:638(RefractiveIndex)
+     3052    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:422(GlobalPressure_Regime1)
+     3049    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:554(LayerThickness)
+     7418    0.001    0.000    0.001    0.000 {built-in method builtins.pow}
+      152    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:1257(RayOptics)
+     6104    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:956(ConvertToGeopotentialHeight)
+     1526    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:456(GlobalWaterVapourDensity)
+        4    0.000    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:1089(FindPsiAtDistance)
+     3049    0.001    0.000    0.001    0.000 {built-in method builtins.min}
+
+
+
+Top 30 functions by total time:
+         717594 function calls in 0.207 seconds
+
+   Ordered by: internal time
+   List reduced from 66 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1526    0.070    0.000    0.118    0.000 /home/raulm/anatel/P528py/scalar/p528.py:736(OxygenRefractivity)
+     1526    0.044    0.000    0.066    0.000 /home/raulm/anatel/P528py/scalar/p528.py:856(WaterVapourRefractivity)
+   120554    0.037    0.000    0.037    0.000 /home/raulm/anatel/P528py/scalar/p528.py:847(LineShapeFactor)
+   276226    0.019    0.000    0.019    0.000 {built-in method math.pow}
+   129979    0.007    0.000    0.007    0.000 {built-in method math.exp}
+   122086    0.007    0.000    0.007    0.000 {built-in method math.sqrt}
+        3    0.006    0.002    0.206    0.069 /home/raulm/anatel/P528py/scalar/p528.py:559(RayTrace)
+     1526    0.002    0.000    0.005    0.000 /home/raulm/anatel/P528py/scalar/p528.py:621(GlobalWetPressure)
+     1526    0.002    0.000    0.197    0.000 /home/raulm/anatel/P528py/scalar/p528.py:935(GetLayerProperties)
+     1526    0.001    0.000    0.002    0.000 /home/raulm/anatel/P528py/scalar/p528.py:779(NonresonantDebyeAttenuation)
+     3052    0.001    0.000    0.002    0.000 /home/raulm/anatel/P528py/scalar/p528.py:369(GlobalTemperature)
+     3052    0.001    0.000    0.002    0.000 /home/raulm/anatel/P528py/scalar/p528.py:410(GlobalPressure)
+     1526    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:638(RefractiveIndex)
+     3052    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:422(GlobalPressure_Regime1)
+     3049    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:554(LayerThickness)
+     7418    0.001    0.000    0.001    0.000 {built-in method builtins.pow}
+     1526    0.001    0.000    0.186    0.000 /home/raulm/anatel/P528py/scalar/p528.py:662(SpecificAttenuation)
+     6104    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:956(ConvertToGeopotentialHeight)
+     3049    0.001    0.000    0.001    0.000 {built-in method builtins.min}
+      152    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:1257(RayOptics)
+     1526    0.001    0.000    0.001    0.000 /home/raulm/anatel/P528py/scalar/p528.py:456(GlobalWaterVapourDensity)
+     3052    0.000    0.000    0.000    0.000 /home/raulm/anatel/P528py/scalar/p528.py:380(GlobalTemperature_Regime1)
+     1526    0.000    0.000    0.119    0.000 /home/raulm/anatel/P528py/scalar/p528.py:896(OxygenSpecificAttenuation)
+     1526    0.000    0.000    0.067    0.000 /home/raulm/anatel/P528py/scalar/p528.py:916(WaterVapourSpecificAttenuation)
+     4880    0.000    0.000    0.000    0.000 {built-in method math.sin}
+     4569    0.000    0.000    0.000    0.000 {built-in method math.asin}
+     3816    0.000    0.000    0.000    0.000 {built-in method math.cos}
+     3054    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+     1834    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+     1526    0.000    0.000    0.000    0.000 /home/raulm/anatel/P528py/scalar/p528.py:982(WaterVapourDensityToPressure)
+
+

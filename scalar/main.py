@@ -1,40 +1,20 @@
-from p528 import P528
+from p528 import *
 
-#d__km = 100.0
-#h_1__meter = 10.0
-#h_2__meter = 50.0
-#f__mhz = 1000.0
-#T_pol = 0  # horizontal polarization
-#p = 50.0
+terminal_1 = Terminal()
+terminal_2 = Terminal()
+tropo = TroposcatterParams()
+path = Path()
+los_params = LineOfSightParams()
+result = Result()
+los_result = LineOfSightParams()
 
-#result = Result()  # Assuming you have a Result class defined
-#result = P528(100.0, 10.0, 1000.0, 1000.0, 0, 50) #resultados bateram pra isso aqui
-
-#print('-------------=------------------------------')
-
-#print("Modo de propagação:", result.propagation_mode)
-#print("Perda total de transmissão:", result.A__db, "dB")
-#print("Perda no espaço livre:", result.A_fs__db, "dB")
-#print("Perda por absorção atmosférica:", result.A_a__db, "dB")
-#print("Ângulo de elevação no terminal 1:", result.theta_h1__rad, "rad")
-
-#print('-------------=------------------------------')
-
-#result = P528(100.0, 10.0, 1000.0, 200000, 0, 50) #funciona
-#print(result)
-
-print('------------------------------------------- 1')
-result = P528(0, 2, 3, 1000, 0, 50)
-print('------------------------------------------- 2')
-result = P528(200, 20, 200, 2000, 1, 60)
-print('------------------------------------------- 3')
-result = P528(300, 30, 300, 3000, 0, 70)
-print('------------------------------------------- 4')
-result = P528(400, 40, 20000, 4000, 1, 80)
-#print(result)
+result = P528_Ex(400, 40, 20000, 4000, 1, 80, result,
+                           terminal_1, terminal_2, tropo, path, los_params, los_result)
 
 print("Modo de propagação:", result.propagation_mode)
 print("Perda total de transmissão:", result.A__db, "dB")
 print("Perda no espaço livre:", result.A_fs__db, "dB")
 print("Perda por absorção atmosférica:", result.A_a__db, "dB")
 print("Ângulo de elevação no terminal 1:", result.theta_h1__rad, "rad")
+
+result.clear(); terminal_1.clear(); terminal_2.clear(); tropo.clear(); path.clear(); los_params.clear();los_result.clear();
