@@ -62,7 +62,6 @@ class Path:
     d_d__km: float = 0.0
     
     def __init__(self):
-        print('Creating Path')
         self.clear()
     
     def clear(self):
@@ -84,7 +83,6 @@ class Terminal:
     
     def __init__(self):
         self.clear()
-        print('Creating Terminal')
     
     def clear(self):
         self.h_r__km: float = 0.0
@@ -112,7 +110,6 @@ class LineOfSightParams:
     
     def __init__(self):
         self.clear()
-        print('Creating LineOfSightParams')
     
     def clear(self):
         self.z__km: List[float] = [0.0, 0.0]
@@ -140,7 +137,6 @@ class TroposcatterParams:
 
     def __init__(self):
         self.clear()
-        print('Creating TroposcatterParams')
     
     def clear(self):
         self.d_s__km: float = 0.0
@@ -164,7 +160,6 @@ class Result:
     result: str = ''
     
     def __init__(self):
-        print('Creating Result')
         self.clear()
     
     def clear(self):
