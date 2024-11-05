@@ -252,12 +252,7 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
             tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams):
     
     # reset Results struct
-    result.A_fs__db = 0
-    result.A_a__db = 0
-    result.A__db = 0
-    result.d__km = 0
-    result.theta_h1__rad = 0
-    result.propagation_mode = PROP_MODE__NOT_SET
+    result.clear()
 
     err = ValidateInputs(d__km, h_1__meter, h_2__meter, f__mhz, T_pol, p)
 
