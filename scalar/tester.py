@@ -1,3 +1,4 @@
+# flake8: noqa
 from p528 import *
 import numpy as np
 import random
@@ -67,7 +68,7 @@ def test_p528(num_tests=1000000):
 
 if __name__ == "__main__":
     # Number of tests to run
-    NUM_TESTS = 100  # You can modify this value
+    NUM_TESTS = 1000000  # You can modify this value
     
     print(f"Starting {NUM_TESTS} tests...")
     successful, failed = test_p528(NUM_TESTS)

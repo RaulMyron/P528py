@@ -1,3 +1,4 @@
+# flake8: noqa
 import math
 import numpy as np
 
@@ -48,12 +49,6 @@ ERROR_VALIDATION__POLARIZATION = 9
 ERROR_HEIGHT_AND_DISTANCE = 10
 WARNING__DFRAC_TROPO_REGION = 20
 
-# Classes
-class Data:
-    P: List[float] = []  # Percentages for interpolation and data tables
-    NakagamiRiceCurves: List[List[float]] = []
-    K: List[int] = []
-
 @dataclass
 class Path:
     
@@ -62,6 +57,7 @@ class Path:
     d_d__km: float = 0.0
     
     def __init__(self):
+        print('Creating Path Object')
         self.clear()
     
     def clear(self):
@@ -82,6 +78,7 @@ class Terminal:
     A_a__db: float = 0.0
     
     def __init__(self):
+        print('Creating Terminal Object')
         self.clear()
     
     def clear(self):
@@ -109,6 +106,7 @@ class LineOfSightParams:
     A_LOS__db: float = 0.0
     
     def __init__(self):
+        print('Creating LineOfSighParams Object')
         self.clear()
     
     def clear(self):
@@ -123,7 +121,11 @@ class LineOfSightParams:
         self.a_a__km: float = 0.0
         self.delta_r__km: float = 0.0
         self.A_LOS__db: float = 0.0
-    
+
+print('Creating Global LineOfSightParams')
+_GLOBAL_LOS_PARAMS = LineOfSightParams()
+
+
 @dataclass
 class TroposcatterParams:
     d_s__km: float = 0.0
@@ -136,6 +138,7 @@ class TroposcatterParams:
     M_s: float = 0.0
 
     def __init__(self):
+        print('Creating TroposcatterParams Object')
         self.clear()
     
     def clear(self):
@@ -147,7 +150,9 @@ class TroposcatterParams:
         self.A_s__db: float = 0.0
         self.A_s_prev__db: float = 0.0
         self.M_s: float = 0.0
-    
+
+print('Creating Global TroposcatterParams')
+_GLOBAL_TROPO_PARAMS = TroposcatterParams()
 
 @dataclass
 class Result:
@@ -160,6 +165,7 @@ class Result:
     result: str = ''
     
     def __init__(self):
+        print('Creating Result Object')
         self.clear()
     
     def clear(self):
@@ -178,12 +184,6 @@ from typing import Callable, List
 
 # Constants
 a_0__km = 6371.0
-pi = math.pi
-
-# Define function type aliases
-Temperature = Callable[[float], float]
-DryPressure = Callable[[float], float]
-WetPressure = Callable[[float], float]
 
 @dataclass
 class SlantPathAttenuationResult:
@@ -193,12 +193,20 @@ class SlantPathAttenuationResult:
     angle__rad: float = 0.0       # Incident angle, in rad
     delta_L__km: float = 0.0      # Excess atmospheric path length, in km
 
-@dataclass
-class RayTraceConfig:
-    temperature: Temperature
-    dry_pressure: DryPressure
-    wet_pressure: WetPressure
+    def __init__(self):
+        print('Creating SlantPathAttenuationResult Object')
+        self.clear()
+
+    def clear(self):
+        self.A_gas__db = 0.0
+        self.bending__rad = 0.0
+        self.a__km = 0.0
+        self.angle__rad = 0.0
+        self.delta_L__km = 0.0
     
+print('Creating Global SlantPathAttenuationResult')
+_GLOBAL_SLANT_RESULT = SlantPathAttenuationResult()
+
 #P835.h
 
 # Constants
@@ -222,6 +230,8 @@ CASE_1 = 1
 CASE_2 = 2
 a_e__km = 9257.0
 
+# Params list
+
 def P528(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
          T_pol: int, p: float):
 
@@ -239,7 +249,7 @@ def P528(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
 
 def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
             T_pol: int, p: float, result: Result, terminal_1: Terminal, terminal_2: Terminal,
-            tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams, los_result: LineOfSightParams):
+            tropo: TroposcatterParams, path: Path, los_params: LineOfSightParams):
     
     # reset Results struct
     result.A_fs__db = 0
@@ -302,12 +312,12 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
     if path.d_ML__km - d__km > 0.001:
 
         result.propagation_mode = PROP_MODE__LOS
-        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS, los_result)        
+        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, d__km, T_pol, result, K_LOS)        
         return result
     
     else:
         
-        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, result, K_LOS, los_result)
+        K_LOS = LineOfSight(path, terminal_1, terminal_2, los_params, f__mhz, -A_dML__db, p, path.d_ML__km - 1, T_pol, result, K_LOS)
 
         # Step 6. Search past horizon to find crossover point between Diffraction and Troposcatter models
                                         #TranshorizonSearch(path, terminal_1, terminal_2, f__mhz, A_dML__db, M_d, A_d0,Const)
@@ -366,7 +376,7 @@ def P528_Ex(d__km: float, h_1__meter: float, h_2__meter: float, f__mhz: float,
         
         # Atmospheric absorption for transhorizon path
 
-        result_v = SlantPathAttenuation(f__mhz / 1000, 0, tropo.h_v__km, pi / 2)
+        result_v = SlantPathAttenuation(f__mhz / 1000, 0, tropo.h_v__km,math.pi/ 2)
 
         result.A_a__db = terminal_1.A_a__db + terminal_2.A_a__db + 2 * result_v.A_gas__db  # [Eqn 3-17]
 
@@ -418,14 +428,14 @@ def ValidateInputs(d_km, h_1_meter, h_2_meter, f_mhz, t_pol, p):
 
 def TerminalGeometry(f__mhz: float, terminal: Terminal):
     theta_tx__rad = 0
-    result = SlantPathAttenuation(f__mhz / 1000, 0, terminal.h_r__km, pi / 2 - theta_tx__rad)
+    result = SlantPathAttenuation(f__mhz / 1000, 0, terminal.h_r__km,math.pi/ 2 - theta_tx__rad)
     
-    terminal.theta__rad = pi / 2 - result.angle__rad
+    terminal.theta__rad =math.pi/ 2 - result.angle__rad
     terminal.A_a__db = result.A_gas__db
     terminal.a__km = result.a__km
     
     # compute arc distance
-    central_angle = ((pi / 2 - result.angle__rad) - theta_tx__rad + result.bending__rad)
+    central_angle = ((math.pi / 2 - result.angle__rad) - theta_tx__rad + result.bending__rad)
     terminal.d_r__km = a_0__km * central_angle
     terminal.phi__rad = terminal.d_r__km / a_e__km
     terminal.h_e__km = (a_e__km / math.cos(terminal.phi__rad)) - a_e__km
@@ -548,16 +558,11 @@ def GlobalWaterVapourPressure(h__km: float, rho_0: float):
     return WaterVapourDensityToPressure(rho, T__kelvin)
 
 def SlantPathAttenuation(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float):
-    
-    #config = RayTraceConfig(
-    #    temperature=GlobalTemperature,
-    #    dry_pressure=GlobalPressure,
-    #    wet_pressure=GlobalWaterVapourPressure
-    #)
 
-    result = SlantPathAttenuationResult()
+    result = _GLOBAL_SLANT_RESULT
+    result.clear()
 
-    if beta_1__rad > pi / 2:
+    if beta_1__rad >math.pi/ 2:
         # negative elevation angle
         # find h_G and then trace in each direction
         # see Section 2.2.2
@@ -602,7 +607,7 @@ def SlantPathAttenuation(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__
             diff = grazing_term - start_term
         
         # converged on h_G.  Now call RayTrace in both directions with grazing angle
-        beta_graze__rad = pi / 2
+        beta_graze__rad = math.pi / 2
         result_1 = RayTrace(f__ghz, h_G__km, h_1__km, beta_graze__rad)
         result_2 = RayTrace(f__ghz, h_G__km, h_2__km, beta_graze__rad)
 
@@ -629,11 +634,8 @@ def RayTrace(f__ghz: float, h_1__km: float, h_2__km: float, beta_1__rad: float):
     i_upper = math.ceil(100 * math.log(1e4 * h_2__km * (math.exp(1. / 100.) - 1) + 1) + 1)
     m = ((math.exp(2. / 100.) - math.exp(1. / 100.)) / (math.exp(i_upper / 100.) - math.exp(i_lower / 100.))) * (h_2__km - h_1__km)
 
-    result = SlantPathAttenuationResult()
-    result.A_gas__db = 0
-    result.bending__rad = 0
-    result.a__km = 0
-    result.delta_L__km = 0
+    result = _GLOBAL_SLANT_RESULT
+    result.clear()
 
     # initialize starting layer
     delta_i__km = LayerThickness(m, i_lower)
@@ -1160,13 +1162,11 @@ def FindPsiAtDistance(d__km: float, path: Path, terminal_1: Terminal, terminal_2
     # initialize to start at mid-point
     psi = math.pi / 2
     delta_psi = -math.pi / 4
-
-   
-    params_temp = LineOfSightParams()
     
     while True:
         psi += delta_psi  # new psi
 
+        params_temp = _GLOBAL_LOS_PARAMS
         params_temp.clear()
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
@@ -1187,10 +1187,10 @@ def FindPsiAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, termin
     psi = math.pi / 2
     delta_psi = -math.pi / 4
 
-    params_temp = LineOfSightParams()
     while True:
         psi += delta_psi
 
+        params_temp = _GLOBAL_LOS_PARAMS
         params_temp.clear()
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
@@ -1209,13 +1209,12 @@ def FindDistanceAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, t
     psi = math.pi / 2
     delta_psi = -math.pi / 4
 
-    params_temp = LineOfSightParams()
     
     while True:
         psi += delta_psi
 
+        params_temp = _GLOBAL_LOS_PARAMS
         params_temp.clear()
-
         RayOptics(terminal_1, terminal_2, psi, params_temp)
 
         if params_temp.delta_r__km > delta_r__km:
@@ -1229,7 +1228,7 @@ def FindDistanceAtDeltaR(delta_r__km: float, path: Path, terminal_1: Terminal, t
     return params_temp.d__km
 
 def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_params: LineOfSightParams,
-                f__mhz: float, A_dML__db: float, p: float, d__km: float, T_pol: int, result: Result, K_LOS: float, los_result: LineOfSightParams):
+                f__mhz: float, A_dML__db: float, p: float, d__km: float, T_pol: int, result: Result, K_LOS: float):
 
     # 0.2997925 = speed of light, gigameters per sec
     lambda__km = 0.2997925 / f__mhz  # [Eqn 6-1]
@@ -1258,8 +1257,7 @@ def LineOfSight(path: Path, terminal_1: Terminal, terminal_2: Terminal, los_para
     # Tune d_0__km distance
     d_temp__km = path.d_0__km
         
-    #los_result = LineOfSightParams()
-    
+    los_result = _GLOBAL_LOS_PARAMS
     los_result.clear()
     
     while True:
@@ -1823,8 +1821,8 @@ def TranshorizonSearch(path, terminal_1, terminal_2, f_mhz, A_dML_db,  M_d, A_d0
     CASE = CONST_MODE__SEARCH
     k = 0
 
-    tropo = TroposcatterParams()  # Assuming TroposcatterParams is a Python class
-    tropo.A_s__db = 0
+    tropo = _GLOBAL_TROPO_PARAMS  # tropo is the global of TroposcatterParams
+    tropo.clear()
 
     # Step 6.1. Initialize search parameters
     d_search_km = np.array([path.d_ML__km + 3, path.d_ML__km + 2])

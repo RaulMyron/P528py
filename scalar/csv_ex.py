@@ -12,7 +12,6 @@ terminal_2 = Terminal()
 tropo = TroposcatterParams()
 path = Path()
 los_params = LineOfSightParams()
-los_result = LineOfSightParams()
 result = Result()
 
 cnt_fail = 0
@@ -65,7 +64,7 @@ for path_index in paths:
             for j in range(len(h1)):
 
                 result = P528_Ex(D[i], h1[j], h2[j], f, 0, p*100, result,
-                                        terminal_1, terminal_2, tropo, path, los_params, los_result)
+                                        terminal_1, terminal_2, tropo, path, los_params)
 
                 
                 delta = round(10.0 * (result.A__db - tl_ref[i,j])) / 10.0
