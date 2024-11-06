@@ -5,7 +5,7 @@ import time
 import psutil
 import gc
 from concurrent.futures import ProcessPoolExecutor
-from scalar.p528 import *
+from p528 import *
 
 # Global instances
 _GLOBAL_TERMINAL_1 = Terminal()

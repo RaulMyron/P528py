@@ -10,13 +10,8 @@ result = Result()
 
 print('---------------------- main objects')
 
-#result = P528_Ex(400, 40, 20000, 4000, 1, 80, result,
-#                           terminal_1, terminal_2, tropo, path, los_params)
-
-
-result = P528_Ex(0,1.5,1000,100,0,1, 
-    result, terminal_1, terminal_2, tropo, path, los_params)
-
+result = P528_Ex(400, 40, 20000, 4000, 1, 80, 
+                 result, terminal_1, terminal_2, tropo, path, los_params)
 
 print("Modo de propagação:", result.propagation_mode)
 print("Perda total de transmissão:", result.A__db, "dB")

@@ -1,5 +1,4 @@
-#flake8: noqa
-
+# flake8: noqa
 import os
 import re
 import numpy as np
