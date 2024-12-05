@@ -9,6 +9,8 @@ This is an ITU P528.5 implementation based on the following resources:
 - [José P528 C++](https://github.com/josefelipe0036/p528_article/tree/main)
 
 ```
+python3.12 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
