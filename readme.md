@@ -34,4 +34,4 @@ pip install -r requirements.txt
 | `propagation_mode`    | int |    | Mode of propagation <br>1 = Line of Sight<br> 2 = Diffraction<br> 3 = Troposcatter|
 | `rtn`    | int |    | Return flags / Error codes|
 
-There are two testers, the scalar/csv_P528ex.py in which you can test just the calling of P528_ex inside of P528 and scalar_P528base.py in which it tests from the P528 class (similar to a get loss per say). 
+There are two testers, the scalar/csv_P528ex.py in which you can test just the calling of P528_ex inside of P528 and scalar_P528base.py in which it tests from the P528 class (similar to a get loss per say). Please run it from inside the folder.

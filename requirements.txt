@@ -1,4 +1,5 @@
 numpy
 line_profiler
 memory_profiler
-cupy
+pandas
+psutil
